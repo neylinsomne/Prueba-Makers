@@ -1,8 +1,7 @@
 from fastapi import APIRouter,HTTPException,WebSocket
 from openai import OpenAI
-from langchain import ai_response
+from ..langchain_app.lango import ai_response
 import os
-from src.langchain
 
 router = APIRouter(
     tags=["Chat Routes"]
@@ -13,6 +12,7 @@ MODEL = os.getenv("MODEL")
 
 
 client = OpenAI(api_key=API_KEY)
+
 
 
 @router.websocket("/ws")
