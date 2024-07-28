@@ -1,6 +1,15 @@
+langchain
+langchain-community
+openai
+langchain-core
 fastapi
 uvicorn[standard]
 pydantic[email]
 python-dotenv
 websockets
 openai
+sqlalchemy
+pandas
+geopandas
+chromadb
+psycopg2
