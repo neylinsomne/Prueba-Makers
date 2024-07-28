@@ -1,24 +1,48 @@
 from fastapi import APIRouter,HTTPException,WebSocket
-import openai
+from openai import OpenAI
 import os
 
 router = APIRouter(
     tags=["Chat Routes"]
 )
 
-openai.api_key = os.getenv("OPENAI_API_KEY")
-engine = os.getenv("MODEL")
+API_KEY = os.getenv("OPENAI_API_KEY")
+MODEL = os.getenv("MODEL")
+
+
+client = OpenAI(api_key=API_KEY)
+
 
 @router.websocket("/ws")
+# websocket endpoint for streaming chat responses
 async def websocket_endpoint(websocket: WebSocket):
     await websocket.accept()
     while True:
+        # Receive the message from the client
         data = await websocket.receive_text()
-        response = openai.Completion.create(
-            engine="davinci-codex",
-            prompt=data,
-            max_tokens=150,
-            stream=True
-        )
-        for chunk in response:
-            await websocket.send_text(chunk.choices[0].text.strip())
+        
+        try:
+            stream = client.chat.completions.create(
+                model=MODEL,
+                messages=[{"role": "user","content": data}],
+                stream=True,
+            )
+        except Exception as e:
+            await websocket.send_text(str(e))
+            raise HTTPException(status_code=500, detail=str(e))
+
+        for chunk in stream:
+            if chunk.choices[0].delta.content is not None:
+                # Send the response to the client
+                await websocket.send_text(str(chunk.choices[0].delta.content))
+        
+        # Send the end of the text to the client
+        await websocket.send_text("<1230TextEnd1971>")
+
+# endpoint for string responses
+async def websocket_endpoint_simplified(websocket: WebSocket):
+    await websocket.accept()
+    while True:
+        # Receive the message from the client
+        data = await websocket.receive_text()
+        await websocket.send_text("your function goes here")
