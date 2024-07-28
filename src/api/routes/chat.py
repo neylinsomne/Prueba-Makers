@@ -46,3 +46,4 @@ async def websocket_endpoint_simplified(websocket: WebSocket):
         # Receive the message from the client
         data = await websocket.receive_text()
         await websocket.send_text("your function goes here")
+        await websocket.send_text("<1230TextEnd1971>")
