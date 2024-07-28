@@ -3,7 +3,7 @@ from langchain_core.output_parsers import StrOutputParser
 from langchain_core.runnables.passthrough import RunnablePassthrough
 from langchain_community.llms import OpenAI
 from langchain_openai import ChatOpenAI
-from data.load_data import get_df, get_db, get_schemaa
+from ..data.load_data import get_df, get_db, get_schemaa
 
 def create_query_prompt(question, schema):
     

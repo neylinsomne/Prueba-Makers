@@ -1,4 +1,4 @@
-from data.load_data import get_df, get_db, get_schemaa
+from ..data.load_data import get_df, get_db, get_schemaa
 from langchain_core.prompts import ChatPromptTemplate
 # from cassandra.cluster import Cluster
 #from langchain_core.chains import create_sql_query_chain
@@ -16,8 +16,8 @@ from langchain_community.agent_toolkits import create_sql_agent
 
 
 import json
-from langchain_app.query_handler import get_sql_chain,run_query
-from langchain_app.usuario import get_question
+from .query_handler import get_sql_chain,run_query
+from .usuario import get_question
 # from langchain_app.memory_handler import setup_memory
 import os
 import time
@@ -40,7 +40,7 @@ def api_request_with_backoff(api_function, *args, **kwargs):
                 print("Max retries reached. Raising exception.")
                 raise e
 
-def ai_response(question):
+def ai_response(question: str):
     load_dotenv()
 
     api_key = os.getenv("OPENAI_API_KEY")
@@ -50,16 +50,14 @@ def ai_response(question):
     chat_model = ChatOpenAI(openai_api_key=api_key)
     db = get_db()
     schema = get_schemaa(db)
-    print(schema)
-    MODEL=os.getenv("MODEL")
+    MODEL = os.getenv("MODEL")
     llm = ChatOpenAI(model=MODEL, temperature=0)
     agent_executor = create_sql_agent(llm, db=db, agent_type="openai-tools", verbose=True)    
-    #generate_query = create_sql_query_chain(llm, db)
-    query = agent_executor.invoke({"question": question})
-# "what is price of `1968 Ford Mustang`"
+    query = agent_executor.invoke(question)
     print(query)
-    #sql_chain = get_sql_chain(question, schema, llm)
-    #generate_query = create_sql_query_chain(llm, db)
+
+    
+    
     template = """
     You are an assistant for sales advisors, your name is Juan. Please respond to the questions based on the schema below, write an SQL query that would answer the User's Questions:
     {schema}
@@ -71,7 +69,7 @@ def ai_response(question):
     prompt = ChatPromptTemplate.from_template(template)
 
     full_chain = (
-        RunnablePassthrough.assign(query=query).assign(
+        RunnablePassthrough.assign(query=lambda _: query).assign(
             response=lambda vars: run_query(db, vars["query"]),
         )
         | prompt
@@ -79,8 +77,8 @@ def ai_response(question):
     )
 
     result = full_chain.invoke({"question": question, "schema": schema})
-    #print(result)
-    return result
+    #return result
+    return query["output"]
 
 if __name__ == "__main__":
     question="How many motorcycles are in the stock"
