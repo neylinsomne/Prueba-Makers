@@ -1,6 +1,6 @@
 import re
 
-# Definir las rutas de los archivos
+# 
 input_file_path = 'mysqlsampledatabase.sql'  # Cambia esto a la ruta de tu archivo de entrada
 output_file_path = 'base_linda.sql'  # Cambia esto a la ruta de tu archivo de salida
 

@@ -1,0 +1,83 @@
+version: "3.1"
+services:
+  chrome:
+    image: selenium/node-chrome:dev
+    shm_size: 2gb
+    depends_on:
+      - selenium-hub
+    environment:
+      - SE_EVENT_BUS_HOST=selenium-hub
+      - SE_EVENT_BUS_PUBLISH_PORT=4442
+      - SE_EVENT_BUS_SUBSCRIBE_PORT=4443
+      - SE_NODE_MAX_SESSIONS=10
+      - VNC_NO_PASSWORD=1
+
+  selenium-hub:
+    image: selenium/hub:latest
+    container_name: selenium-hub
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"
+
+  db:
+    image: postgis/postgis:15-3.3
+    restart: "no"
+    environment:
+      - POSTGRES_PASSWORD=xd
+    ports: 
+      - 5434:5432
+    volumes:
+      - db_data:/var/lib/postgresql/data
+    networks:
+      - gisnet
+
+  pgadmin4:
+    image: dpage/pgadmin4
+    restart: "no"
+    environment:
+      PGADMIN_DEFAULT_EMAIL: info@example.org
+      PGADMIN_DEFAULT_PASSWORD: password
+      PGADMIN_DEFAULT_ENHANCED_COOKIE_PROTECTION: "True"
+      PGADMIN_CONFIG_CONSOLE_LOG_LEVEL: 10
+    ports:
+      - 5480:80
+    networks:
+      - gisnet
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+      - ./pgadmin:/var/lib/pgadmin/sessions
+
+  scrapy-splash:
+    image: scrapinghub/splash
+    ports:
+      - 8050:8050
+    restart: always
+
+  qdrant:
+    image: qdrant/qdrant
+    ports:
+      - "6333:6333"
+    volumes:
+      - qdrant_data:/qdrant/storage
+
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2019-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=YourStrong!Passw0rd
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlserver_data:/var/opt/mssql
+
+volumes:
+  db_data:
+  pgadmin_data:
+  qdrant_data:
+  sqlserver_data:
+
+networks:
+  gisnet:
+    external:
+      name: gisnet
