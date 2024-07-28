@@ -40,6 +40,7 @@ async def websocket_endpoint(websocket: WebSocket):
         await websocket.send_text("<1230TextEnd1971>")
 
 # endpoint for string responses
+@router.websocket("/ws/simplified")
 async def websocket_endpoint_simplified(websocket: WebSocket):
     await websocket.accept()
     while True:
