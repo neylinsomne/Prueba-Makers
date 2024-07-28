@@ -1,5 +1,5 @@
-# gestplay_auth
- Authentication service for gestplay
+# prueba-makers
+ Chat Bot Backend
 
 ## Table of Contents
 
@@ -39,7 +39,7 @@
 1. Start the FastAPI server:
 
     ```bash
-    uvicorn api.main:app --reload
+    python src/main.py
     ```
 
 2. Open your browser and navigate to `http://localhost:8000` to access the API.
